@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>注册码</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        .divf {
+            width: 200px;
+            height: 100px;
+            background: transparent;
+            float: contour;
+        }
+
+        .main {
+            text-align: center; /*让div内部文字居中*/
+            background-color: #fff;
+            /*width: 75%;*/
+            /*height: 350px;*/
+            margin-left: 2%;
+            /*margin-right: 2%;*/
+            margin-top: 2%;
+            position: relative;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .td {
+            font-family: sans-serif;
+            text-align: center;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .bd {
+            border-collapse: collapse;
+            border: 1px solid black;
+            border-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<table style="margin-left: 2%;margin-top: 2%;position: relative;">
+    <tr>
+        <td style="padding-right: 40px; padding-bottom: 20px">
+            <table>
+                <tr>
+                    <td id="permission_code_form"></td>
+                </tr>
+            </table>
+            <br/>
+            <table>
+                <tr class="bd">
+                    <td class="td bd" style="background: azure"
+                        onclick="s_new()">新增
+                    </td>
+                    <td class="td bd" style="background: azure"
+                        onclick="s_delete()">删除
+                    </td>
+                    <td class="td bd" style="background: azure"
+                        onclick="s_change()">修改
+                    </td>
+                    <td class="td bd" style="background: azure"
+                        onclick="location='/'">关闭
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <form>
+                <table id="permission_code_list"></table>
+            </form>
+        </td>
+    </tr>
+</table>
+</body>
+<script>
+    String.prototype.format = function () {
+        let args = Array.prototype.slice.call(arguments);
+        let count = 0;
+        return this.replace(/%s/g, function () {
+            return args[count++];
+        });
+    }
+
+    let input = document.getElementById('permission_code_form');
+    let permission_code_list = document.getElementById('permission_code_list');
+
+    function s_new() {
+        input.innerHTML = `
+<form method="post" id="permission_code_forms">
+    <label>注册码：
+        <input type="text" name="p_code" placeholder="注册码">
+    </label><br /><br />
+    <label>权限：
+        <input type="number" name="permission" placeholder="权限">
+    </label><br /><br />
+    <label>截止日期：
+        <input type="number" name="deadline" placeholder="截止日期">
+    </label><br /><br />
+    <button type="button" onclick="post('/add_permission_code', formValue('permission_code_forms'), s_new_post)">提交</button>
+</form>
+`
+    }
+
+    function s_new_post(data) {
+        alert(data);
+        input.innerHTML = ""
+        get("/permission_code_list", update_list);
+    }
+
+    let del_set = new Set();
+
+    function getSet() {
+        let qu = "[";
+        for (let v of del_set) {
+            qu += '"' + v + '",';
+        }
+        qu = qu.substr(0, qu.length - 1);
+        qu += "]"
+        return qu;
+    }
+
+    function s_delete() {
+        if (del_set.size === 0) {
+            alert("请先鼠标左键单击选择需要删除的注册码");
+            return
+        }
+        let qu = getSet();
+        let res = confirm("是否删除以下PCID的注册码：" + qu);
+        if (res === false) {
+            return
+        }
+        post('/delete_permission_codes', "pcid=" + qu, s_new_post)
+    }
+
+    // function s_del_post(data) {
+    //     alert(data);
+    //     get("/permission_code_list", update_list);
+    // }
+
+    function s_change() {
+        if (del_set.size !== 1) {
+            alert("只能选择一个需要修改的注册码");
+            return
+        }
+        let qu = getSet();
+        let res = confirm("是否修改以下id的注册码信息：" + qu);
+        if (res === false) {
+            return
+        }
+        s_change_display_form();
+    }
+
+    function s_change_display_form() {
+        let cel = document.getElementById(del_set.values().next().value).cells
+        input.innerHTML = `
+<form method="post" id="permission_code_forms">
+    <label>PCID：
+        <input type="text" name="pcid" id="pcid" value="%s" placeholder="PCID" disabled>
+    </label><br /><br />
+    <label>注册码：
+        <input type="text" name="code" id="code" value="%s" placeholder="注册码" disabled>
+    </label><br /><br />
+    <label>权限：
+        <input type="number" name="permission" id="permission" value="%s" placeholder="权限">
+    </label><br /><br />
+    <label>截止日期：
+        <input type="number" name="deadline" id="deadline" value="%s" placeholder="截止日期">
+    </label><br /><br />
+    <label>创建者：
+        <input type="number" name="generated_by" id="generated_by" value="%s" placeholder="创建者">
+    </label><br /><br />
+    <label>使用者：
+        <input type="number" name="used_by" id="used_by" value="%s" placeholder="使用者">
+    </label><br /><br />
+    <label>已删除：
+        <input type="number" name="deleted" id="deleted" value="%s" placeholder="已删除">
+    </label><br /><br />
+    <button type="button" onclick="post('/update_permission_code', formValue('permission_code_forms'), s_new_post)">提交</button>
+</form>
+`.format(cel[0].innerText, cel[1].innerText, cel[2].innerText, cel[3].innerText, cel[4].innerText
+            , cel[5].innerText, cel[6].innerText);
+    }
+
+    function update_list(str) {
+        let data = JSON.parse(str);
+        let html = `
+<tr class="bd">
+    <td class="td bd" style="background: darkgray">PCID</td>
+    <td class="td bd" style="background: darkgray">注册码</td>
+    <td class="td bd" style="background: darkgray">权限</td>
+    <td class="td bd" style="background: darkgray">创建者</td>
+    <td class="td bd" style="background: darkgray">使用者</td>
+    <td class="td bd" style="background: darkgray">截止日期</td>
+    <td class="td bd" style="background: darkgray">删除时间</td>
+</tr>
+`;
+
+        for (let i = 0; i < data.length; ++i) {
+            html += `
+<tr class="bd" id="%s" onclick="del_red('%s')">
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd" style="display: none">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd" style="display: none">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+</tr>
+`.format(data[i].pcid, data[i].pcid, data[i].pcid, data[i].code, data[i].permission, data[i].deadline, data[i].generated_by,
+                data[i].used_by, data[i].deleted, TranUnixTime(data[i].deadline), TranUnixTime(data[i].deleted));
+        }
+
+        permission_code_list.innerHTML = html;
+        del_set.clear();
+    }
+
+    /**
+     * 将标签背景修改为红色并将id加入set
+     * 还原被修改为红色的标签，将id从set中删除
+     * @param id 标签id
+     */
+    function del_red(id) {
+        if (del_set.has(id)) {
+            document.getElementById(id).style.background = '';
+            del_set.delete(id);
+        } else {
+            document.getElementById(id).style.background = 'red';
+            del_set.add(id);
+        }
+    }
+
+</script>
+
+<script>
+    /**
+     * 发送POST请求
+     * @param url 请求URL
+     * @param formvalue 需要发送的数据
+     * @param func 返回信息处理函数
+     */
+    function post(url, formvalue, func) {
+        let httpRequest = new XMLHttpRequest();
+        httpRequest.open('POST', url, true);
+        httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        httpRequest.send(formvalue);
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                func(httpRequest.responseText);
+            }
+        };
+    }
+
+    /**
+     * 发送GET请求
+     * @param url 请求URL
+     * @param func 返回信息处理函数
+     */
+    function get(url, func) {
+        let httpRequest = new XMLHttpRequest();
+        httpRequest.open('GET', url, true);
+        httpRequest.send();
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                func(httpRequest.responseText);
+            }
+        };
+    }
+
+    /**
+     * 获取表单的值，拼接成字符串返回
+     * @param formId 表单ID
+     * @returns {string} 拼接成字符串的值
+     */
+    function formValue(formId) {
+        const formObj = document.getElementById(formId);
+        let name, value, postString = "";
+        if (formObj.elements.length) {
+            for (let i = 0; i < formObj.length; i++) {
+                let singleObj = formObj[i];
+                if (singleObj.type !== "reset" && singleObj.type !== "submit"
+                    && singleObj.type !== "button") {
+                    if (singleObj.type === "radio" || singleObj.type === "checkbox") {
+                        if (singleObj.checked) {
+                            name = singleObj.name;
+                            value = singleObj.value;
+                            postString = postString + name + "=" + value + "&";
+                        }
+                    } else {
+                        name = singleObj.name;
+                        value = singleObj.value;
+                        postString = postString + name + "=" + value + "&";
+                    }
+                }
+            }
+        }
+        return postString.substr(0, postString.length - 1);
+    }
+
+    function TranUnixTime(e) {
+        if (e === 0) {
+            return ""
+        }
+        let unixTimestamp = new Date(e * 1000);
+        return unixTimestamp.toLocaleString();
+    }
+</script>
+
+<script>
+    get("/permission_code_list", update_list);
+</script>
+</html>

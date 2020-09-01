@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>自动</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        .td {
+            font-family: sans-serif;
+            text-align: center;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .bd {
+            border-collapse: collapse;
+            border: 1px solid black;
+            border-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<table style="margin-left: 2%;margin-top: 2%;position: relative;">
+    <tr>
+        <td>
+            <form>
+                <table id="forest_user">
+                    <tr class="bd">
+                        <td class="td bd" style="background: darkgray">UUID</td>
+                        <td class="td bd" style="background: darkgray">用户名</td>
+                        <td class="td bd" style="background: darkgray">昵称</td>
+                        <td class="td bd" style="background: darkgray">累计充值</td>
+                        <td class="td bd" style="background: darkgray">累计提现</td>
+                        <td class="td bd" style="background: darkgray">硬币数量</td>
+                    </tr>
+                    <tr class="bd" id="user_info">
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                    </tr>
+                </table>
+            </form>
+        </td>
+    </tr>
+    <tr style="height: 24px"></tr>
+    <tr style="height: 24px">
+        <td><form method="post" id="req_forms">
+                <label>
+                    用户名/UUID：<input type="text" name="uuid" id="uuid" placeholder="用户名/UUID">
+                </label><br /><br />
+                <button type="button" onclick="get('/auto_remain?' + formValue('req_forms'), update_list_auto)">查询</button>
+            </form></td>
+    </tr>
+    <tr style="height: 24px"></tr>
+    <tr>
+        <td>
+            <table>
+                <tr class="bd">
+                    <td style="vertical-align:top;">
+                        <table id="forest_work_auto">
+                            <tr class="bd">
+                                <td class="td bd" style="background: darkgray">自动计算</td>
+                                <td class="td bd" style="background: darkgray">收益</td>
+                                <td class="td bd" style="background: darkgray">倒计时</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr style="height: 24px"></tr>
+    <tr>
+        <td style="padding-right: 40px; padding-bottom: 20px">
+            <table>
+                <tr class="bd">
+                    <td class="td bd" style="background: azure" onclick="location='/'">关闭</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+<script>
+    String.prototype.format = function () {
+        let args = Array.prototype.slice.call(arguments);
+        let count = 0;
+        return this.replace(/%s/g, function () {
+            return args[count++];
+        });
+    }
+
+
+    /**
+     * 0 UUID
+     * 1 Username
+     * 2 Nickname
+     * 3 RMB
+     * 4 Coin
+     * @type {HTMLCollectionOf<HTMLTableDataCellElement | HTMLTableHeaderCellElement>}
+     */
+    let work_auto
+    let user_info = document.getElementById('user_info').cells
+    let work_list_auto = document.getElementById('forest_work_auto')
+
+    function update_user_info() {
+        user_info[0].innerText = getCookie("uuid")
+        user_info[1].innerText = getCookie("username")
+        user_info[2].innerText = getCookie("nickname")
+        user_info[3].innerText = getCookie("rmb_in")
+        user_info[4].innerText = getCookie("rmb_out")
+        user_info[5].innerText = getCookie("coin")
+    }
+
+    function update_list_auto(str) {
+        console.log(str)
+        work_auto = JSON.parse(str);
+        let data = JSON.parse(str);
+        let html = `
+<tr class="bd">
+    <td class="td bd" style="background: darkgray">自动计算</td>
+    <td class="td bd" style="background: darkgray">收益</td>
+    <td class="td bd" style="background: darkgray">倒计时</td>
+</tr>
+`;
+
+        for (let i = 0; i < data.data.length; ++i) {
+            html += `
+<tr class="bd" id="%s">
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+</tr>
+`.format(i, data.data[i].name, data.data[i].coin, formatSeconds(data.data[i].remain));
+        }
+
+        work_list_auto.innerHTML = html;
+    }
+
+</script>
+
+<script>
+
+    /**
+     * 发送GET请求
+     * @param url 请求URL
+     * @param func 返回信息处理函数
+     */
+    function get(url, func) {
+        let httpRequest = new XMLHttpRequest();
+        httpRequest.open('GET', url, true);
+        httpRequest.send();
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                func(httpRequest.responseText);
+            }
+        };
+    }
+
+    /**
+     * 获取表单的值，拼接成字符串返回
+     * @param formId 表单ID
+     * @returns {string} 拼接成字符串的值
+     */
+    function formValue(formId) {
+        const formObj = document.getElementById(formId);
+        let name, value, postString = "";
+        if (formObj.elements.length) {
+            for (let i = 0; i < formObj.length; i++) {
+                let singleObj = formObj[i];
+                if (singleObj.type !== "reset" && singleObj.type !== "submit"
+                    && singleObj.type !== "button") {
+                    if (singleObj.type === "radio" || singleObj.type === "checkbox") {
+                        if (singleObj.checked) {
+                            name = singleObj.name;
+                            value = singleObj.value;
+                            postString = postString + name + "=" + value + "&";
+                        }
+                    } else {
+                        name = singleObj.name;
+                        value = singleObj.value;
+                        postString = postString + name + "=" + value + "&";
+                    }
+                }
+            }
+        }
+        return postString.substr(0, postString.length - 1);
+    }
+
+    function setCookie(name, value, seconds) {
+        seconds = seconds || 0;   //seconds有值就直接赋值，没有为0，这个根php不一样。
+        let expires = "";
+        if (seconds !== 0) {      //设置cookie生存时间
+            const date = new Date();
+            date.setTime(date.getTime() + (seconds * 1000));
+            expires = "; expires=" + date.toGMTString();
+        }
+        document.cookie = name + "=" + escape(value) + expires + "; path=/";   //转码并赋值
+    }
+
+    function getCookie(cookie_name) {
+        const allcookies = document.cookie;
+        let cookie_pos = allcookies.indexOf(cookie_name);
+        if (cookie_pos !== -1) {
+            cookie_pos += cookie_name.length + 1;
+            let cookie_end = allcookies.indexOf(";", cookie_pos);
+            if (cookie_end === -1) {
+                cookie_end = allcookies.length;
+            }
+            return unescape(allcookies.substring(cookie_pos, cookie_end));
+        }
+        return "";
+    }
+
+    function deleteCookie(name) {
+        //获取当前时间
+        const date = new Date();
+        //将date设置为过去的时间
+        date.setTime(date.getTime() - 10000);
+        //将userId这个cookie删除
+        //document.cookie="userId=828; expire="+date.toGMTString();
+        document.cookie = name + "=v; expires=" + date.toGMTString();
+    }
+
+    function isCookie(key) {
+        let strCookie = document.cookie;
+        strCookie = strCookie.split('; ');
+        let i = 0, l = strCookie.length;
+        for (; i < l; i++) {
+            const att = strCookie[i].split('=');
+            if (att[0] === key) {
+                return att[1]
+            }
+        }
+        return false
+    }
+
+    //清除cookie
+    function clearCookie(name) {
+        setCookie(name, "", -1);
+    }
+
+    // 将秒格式化为 天:时:分:秒
+    function formatSeconds(e) {
+        let second = parseInt(e);
+        let minute = 0;
+        let hour = 0;
+        let day = 0;
+        if (second > 60) {
+            minute = parseInt(second / 60);
+            second = parseInt(second % 60);
+            if (minute > 60) {
+                hour = parseInt(minute / 60);
+                minute = parseInt(minute % 60);
+                if (hour > 24) {
+                    day = parseInt(hour / 24);
+                    hour = parseInt(hour % 24);
+                }
+            }
+        }
+        let interval = "" + parseInt(second) + "s";
+        if (minute > 0) {
+            interval = "" + parseInt(minute) + "m:" + interval;
+        }
+        if (hour > 0) {
+            interval = "" + parseInt(hour) + "h:" + interval;
+        }
+        if (day > 0) {
+            interval = "" + parseInt(day) + "d:" + interval;
+        }
+        return interval;
+    }
+</script>
+
+<script>
+    update_user_info()
+    get("/auto_remain", update_list_auto);
+</script>
+</html>
