@@ -182,7 +182,7 @@ func GetRecords(uuid int) []Record {
 	}
 
 	recordDams := make([]RecordDam, 0)
-	db.Table("record").Where("uuid=?", uuid).Find(&recordDams)
+	db.Table("record").Where("uuid=?", uuid).Order("urid").Find(&recordDams)
 
 	records := make([]Record, 0)
 	for _, v := range recordDams {
@@ -199,7 +199,7 @@ func GetAllRecord() []Record {
 	}
 
 	recordDams := make([]RecordDam, 0)
-	db.Table("record").Find(&recordDams)
+	db.Table("record").Order("urid").Find(&recordDams)
 
 	records := make([]Record, 0)
 	for _, v := range recordDams {
@@ -216,7 +216,7 @@ func GetUserRecord(uuid int) []Record {
 	}
 
 	recordDams := make([]RecordDam, 0)
-	db.Table("record").Where("uuid=?", uuid).Find(&recordDams)
+	db.Table("record").Where("uuid=?", uuid).Order("urid").Find(&recordDams)
 
 	records := make([]Record, 0)
 	for _, v := range recordDams {
@@ -234,7 +234,7 @@ func GetUserRecordByTime(uuid int, start, end int64) []Record {
 	recordDams := make([]RecordDam, 0)
 	records := make([]Record, 0)
 	db.Table("record").Where("uuid=? AND ((time_start>=? AND time_start<?) "+
-		"OR (time_end>? AND time_end<=?))", uuid, start, end, start, end).Find(&recordDams)
+		"OR (time_end>? AND time_end<=?))", uuid, start, end, start, end).Order("urid").Find(&recordDams)
 
 	for k, v := range recordDams {
 		if v.TimeStart < start {
@@ -259,7 +259,7 @@ func GetRecordByTime(start, end int64) []Record {
 	recordDams := make([]RecordDam, 0)
 	records := make([]Record, 0)
 	db.Table("record").Where(" (time_start>=? AND time_start<?) "+
-		"OR (time_end>? AND time_end<=?)", start, end, start, end).Find(&recordDams)
+		"OR (time_end>? AND time_end<=?)", start, end, start, end).Order("urid").Find(&recordDams)
 
 	for k, v := range recordDams {
 		if v.TimeStart < start {

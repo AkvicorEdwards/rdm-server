@@ -142,9 +142,9 @@ func GetAllWorks(uuid int, all bool) []Work {
 	}
 	works := make([]Work, 0)
 	if all {
-		db.Table("work").Where("uuid=?", uuid).Find(&works)
+		db.Table("work").Where("uuid=?", uuid).Order("wuid").Find(&works)
 	} else {
-		db.Table("work").Where("uuid=? AND deleted=0", uuid).Find(&works)
+		db.Table("work").Where("uuid=? AND deleted=0", uuid).Order("wuid").Find(&works)
 	}
 
 	return works
@@ -157,9 +157,9 @@ func GetTimeWorks(uuid int, all bool) []Work {
 	}
 	works := make([]Work, 0)
 	if all {
-		db.Table("work").Where("type=? AND uuid=?", def.Type3, uuid).Find(&works)
+		db.Table("work").Where("type=? AND uuid=?", def.Type3, uuid).Order("wuid").Find(&works)
 	} else {
-		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type3, uuid).Find(&works)
+		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type3, uuid).Order("wuid").Find(&works)
 	}
 	return works
 }
@@ -171,9 +171,9 @@ func GetOnceWorks(uuid int, all bool) []Work {
 	}
 	works := make([]Work, 0)
 	if all {
-		db.Table("work").Where("type=? AND uuid=?", def.Type2, uuid).Find(&works)
+		db.Table("work").Where("type=? AND uuid=?", def.Type2, uuid).Order("wuid").Find(&works)
 	} else {
-		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type2, uuid).Find(&works)
+		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type2, uuid).Order("wuid").Find(&works)
 	}
 
 	return works
@@ -186,9 +186,9 @@ func GetCustomWorks(uuid int, all bool) []Work {
 	}
 	works := make([]Work, 0)
 	if all {
-		db.Table("work").Where("type=? AND uuid=?", def.Type1, uuid).Find(&works)
+		db.Table("work").Where("type=? AND uuid=?", def.Type1, uuid).Order("wuid").Find(&works)
 	} else {
-		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type1, uuid).Find(&works)
+		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type1, uuid).Order("wuid").Find(&works)
 	}
 	return works
 }
@@ -200,9 +200,9 @@ func GetAutoWorks(uuid int, all bool) []Work {
 	}
 	works := make([]Work, 0)
 	if all {
-		db.Table("work").Where("type=? AND uuid=?", def.Type0, uuid).Find(&works)
+		db.Table("work").Where("type=? AND uuid=?", def.Type0, uuid).Order("wuid").Find(&works)
 	} else {
-		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type0, uuid).Find(&works)
+		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type0, uuid).Order("wuid").Find(&works)
 	}
 	return works
 }
