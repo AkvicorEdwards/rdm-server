@@ -121,13 +121,29 @@
     let analyze_list = document.getElementById('analyze_list_div')
     let range_select = document.getElementById('c')
 
+    function coin_split(c) {
+        let Copper = 1
+        let Silver = Copper * 100
+        let Gold   = Silver * 100
+
+        let gold = parseInt(c / Gold)
+        c -= gold * Gold
+        let silver = parseInt(c / Silver)
+        c -= silver * Silver
+        let copper = parseInt(c)
+
+        return (`<a style="color:#be9418">%sg</a>`+
+            `<a style="color:#6f6d6f">%ss</a>`+
+            `<a style="color:#914822">%sc</a>`).format(gold, silver, copper);
+    }
+
     function update_user_info() {
         user_info[0].innerText = getCookie("uuid")
         user_info[1].innerText = getCookie("username")
         user_info[2].innerText = getCookie("nickname")
         user_info[3].innerText = getCookie("rmb_in")
         user_info[4].innerText = getCookie("rmb_out")
-        user_info[5].innerText = getCookie("coin")
+        user_info[5].innerHTML = coin_split(getCookie("coin"))
     }
 
     function select_display() {
@@ -324,7 +340,7 @@
     <td class="td bd">%s</td>
 </tr>
 `.format(i, data[i].work.name, TranUnixTime(data[i].record.time_start), TranUnixTime(data[i].record.time_end),
-                formatSeconds(data[i].record.time_end - data[i].record.time_start), data[i].record.coin);
+                formatSeconds(data[i].record.time_end - data[i].record.time_start), coin_split(data[i].record.coin));
 
             coin_sum += data[i].record.coin
             time_sum += data[i].record.time_end - data[i].record.time_start
@@ -357,8 +373,8 @@
     <td class="td bd" style="background: darkgray">获得硬币量</td>
     <td class="td bd">%s</td>
 </tr>
-`.format(formatSeconds(time_sum), coin_sum, formatSeconds(time_out_sum),
-            coin_out_sum, formatSeconds(time_in_sum), coin_in_sum);
+`.format(formatSeconds(time_sum), coin_split(coin_sum), formatSeconds(time_out_sum),
+            coin_split(coin_out_sum), formatSeconds(time_in_sum), coin_split(coin_in_sum));
 
         html += `
 <tr style="height: 24px"></tr>
@@ -378,7 +394,7 @@
     <td class="td bd">%s</td>
     <td class="td bd">%s</td>
 </tr>
-`.format(data2[i].name, data2[i].time, data2[i].coin, data2[i].cnt)
+`.format(data2[i].name, formatSeconds(data2[i].time), coin_split(data2[i].coin), data2[i].cnt)
         }
 
         analyze_list.innerHTML = html;

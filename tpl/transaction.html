@@ -73,6 +73,22 @@
         });
     }
 
+    function coin_split(c) {
+        let Copper = 1
+        let Silver = Copper * 100
+        let Gold   = Silver * 100
+
+        let gold = parseInt(c / Gold)
+        c -= gold * Gold
+        let silver = parseInt(c / Silver)
+        c -= silver * Silver
+        let copper = parseInt(c)
+
+        return (`<a style="color:#be9418">%sg</a>`+
+            `<a style="color:#6f6d6f">%ss</a>`+
+            `<a style="color:#914822">%sc</a>`).format(gold, silver, copper);
+    }
+
     let input = document.getElementById('transaction_form');
     let transaction_list = document.getElementById('transaction_list');
 
@@ -164,11 +180,12 @@
     <td class="td bd">%s</td>
     <td class="td bd" style="display: none">%s</td>
     <td class="td bd">%s</td>
+    <td class="td bd" style="display: none">%s</td>
     <td class="td bd">%s</td>
     <td class="td bd">%s</td>
 </tr>
 `.format(data[i]['utid'], data[i]['utid'], data[i]['utid'], data[i].uuid, data[i]['unix_time'],
-                data[i]['rmb'], data[i].coin, TranUnixTime(data[i]['unix_time']));
+                data[i]['rmb'], data[i].coin, coin_split(data[i].coin), TranUnixTime(data[i]['unix_time']));
         }
 
         transaction_list.innerHTML = html;

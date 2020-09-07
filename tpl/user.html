@@ -88,6 +88,22 @@
         });
     }
 
+    function coin_split(c) {
+        let Copper = 1
+        let Silver = Copper * 100
+        let Gold   = Silver * 100
+
+        let gold = parseInt(c / Gold)
+        c -= gold * Gold
+        let silver = parseInt(c / Silver)
+        c -= silver * Silver
+        let copper = parseInt(c)
+
+        return (`<a style="color:#be9418">%sg</a>`+
+            `<a style="color:#6f6d6f">%ss</a>`+
+            `<a style="color:#914822">%sc</a>`).format(gold, silver, copper);
+    }
+
     let input = document.getElementById('user_form');
     let user_list = document.getElementById('user_list');
 

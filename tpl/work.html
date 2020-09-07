@@ -2,7 +2,7 @@
 <html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
-    <title>项</title>
+    <title>任务</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <style>
         .divf {
@@ -96,6 +96,22 @@
         return this.replace(/%s/g, function () {
             return args[count++];
         });
+    }
+
+    function coin_split(c) {
+        let Copper = 1
+        let Silver = Copper * 100
+        let Gold   = Silver * 100
+
+        let gold = parseInt(c / Gold)
+        c -= gold * Gold
+        let silver = parseInt(c / Silver)
+        c -= silver * Silver
+        let copper = parseInt(c)
+
+        return (`<a style="color:#be9418">%sg</a>`+
+            `<a style="color:#6f6d6f">%ss</a>`+
+            `<a style="color:#914822">%sc</a>`).format(gold, silver, copper);
     }
 
     let input = document.getElementById('work_form');
@@ -218,8 +234,8 @@
     <td class="td bd" style="background: darkgray">名称</td>
     <td class="td bd" style="background: darkgray">类型</td>
     <td class="td bd" style="background: darkgray">计量单位</td>
-    <td class="td bd" style="background: darkgray">硬币数量</td>
     <td class="td bd" style="background: darkgray">关联的自动执行任务id</td>
+    <td class="td bd" style="background: darkgray">硬币数量</td>
     <td class="td bd" style="background: darkgray">已删除</td>
 </tr>
 `;
@@ -231,12 +247,14 @@
     <td class="td bd">%s</td>
     <td class="td bd">%s</td>
     <td class="td bd">%s</td>
+    <td class="td bd" style="display: none">%s</td>
     <td class="td bd">%s</td>
+    <td class="td bd" style="display: none">%s</td>
     <td class="td bd">%s</td>
     <td class="td bd">%s</td>
 </tr>
 `.format(data[i].wuid, data[i].wuid, data[i].wuid, data[i].name, data[i].type,
-                data[i].unit, data[i].coin, data[i].associate, data[i].deleted);
+                data[i].unit, data[i].coin, data[i].associate, data[i].deleted, coin_split(data[i].coin), data[i].deleted===0?"no":"yes");
         }
 
         work_list.innerHTML = html;

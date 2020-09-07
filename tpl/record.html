@@ -95,6 +95,22 @@
         });
     }
 
+    function coin_split(c) {
+        let Copper = 1
+        let Silver = Copper * 100
+        let Gold   = Silver * 100
+
+        let gold = parseInt(c / Gold)
+        c -= gold * Gold
+        let silver = parseInt(c / Silver)
+        c -= silver * Silver
+        let copper = parseInt(c)
+
+        return (`<a style="color:#be9418">%sg</a>`+
+            `<a style="color:#6f6d6f">%ss</a>`+
+            `<a style="color:#914822">%sc</a>`).format(gold, silver, copper);
+    }
+
     let input = document.getElementById('record_form');
     let record_list = document.getElementById('record_list');
 
@@ -214,7 +230,7 @@
 `.format(data[i]['record'].urid, data[i]['record'].urid, data[i]['record'].urid, data[i]['record'].uuid,
                 data[i]['record'].wuid, data[i]['record'].time_start, data[i]['record'].time_end, data[i]['record'].coin, tag,
                 data[i]['work'].name, TranUnixTime(data[i]['record'].time_start), TranUnixTime(data[i]['record'].time_end),
-                formatSeconds(data[i]['record'].time_end - data[i]['record'].time_start), data[i]['record'].coin, tag);
+                formatSeconds(data[i]['record'].time_end - data[i]['record'].time_start), coin_split(data[i]['record'].coin), tag);
         }
 
         record_list.innerHTML = html;

@@ -230,23 +230,39 @@
     let selected_work_json = ""
     let interval
 
+    function coin_split(c) {
+        let Copper = 1
+        let Silver = Copper * 100
+        let Gold   = Silver * 100
+
+        let gold = parseInt(c / Gold)
+        c -= gold * Gold
+        let silver = parseInt(c / Silver)
+        c -= silver * Silver
+        let copper = parseInt(c)
+
+        return (`<a style="color:#be9418">%sg</a>`+
+            `<a style="color:#6f6d6f">%ss</a>`+
+            `<a style="color:#914822">%sc</a>`).format(gold, silver, copper);
+    }
+
     function update_user_info() {
         user_info[0].innerText = getCookie("uuid")
         user_info[1].innerText = getCookie("username")
         user_info[2].innerText = getCookie("nickname")
         user_info[3].innerText = getCookie("rmb_in")
         user_info[4].innerText = getCookie("rmb_out")
-        user_info[5].innerText = getCookie("coin")
+        user_info[5].innerHTML = coin_split(getCookie("coin"))
     }
 
     // 更新已选择任务
     function update_selected_work() {
         work_name.innerText = selected_work_json.name
-        work_coin.innerText = selected_work_json.coin
+        work_coin.innerHTML = coin_split(selected_work_json.coin)
     }
 
     // 更新弹出框中的内容
-    function update_list_time(str) {
+    function update_list_time(str) { // TODO 硬币显示转换
         work_time_str = JSON.parse(str);
         let data = JSON.parse(str);
         let html = `
@@ -335,8 +351,8 @@
     // 计算任务开始时到现在的时间
     function work_timing() {
         work_time.innerText = formatSeconds((new Date().getTime() / 1000) - work_start_time);
-        work_coin_now.innerText = (Math.floor(((Math.floor(new Date().getTime() / 1000) - work_start_time) / 60))
-            * parseInt(work_coin.innerText)).toString();
+        work_coin_now.innerHTML = coin_split((Math.floor(((Math.floor(new Date().getTime() / 1000) - work_start_time) / 60))
+            * parseInt(selected_work_json.coin)));
     }
 
     // 选择某个任务后开始计时

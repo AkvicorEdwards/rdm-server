@@ -107,13 +107,29 @@
     let user_info = document.getElementById('user_info').cells
     let work_list_auto = document.getElementById('forest_work_auto')
 
+    function coin_split(c) {
+        let Copper = 1
+        let Silver = Copper * 100
+        let Gold   = Silver * 100
+
+        let gold = parseInt(c / Gold)
+        c -= gold * Gold
+        let silver = parseInt(c / Silver)
+        c -= silver * Silver
+        let copper = parseInt(c)
+
+        return (`<a style="color:#be9418">%sg</a>`+
+            `<a style="color:#6f6d6f">%ss</a>`+
+            `<a style="color:#914822">%sc</a>`).format(gold, silver, copper);
+    }
+
     function update_user_info() {
         user_info[0].innerText = getCookie("uuid")
         user_info[1].innerText = getCookie("username")
         user_info[2].innerText = getCookie("nickname")
         user_info[3].innerText = getCookie("rmb_in")
         user_info[4].innerText = getCookie("rmb_out")
-        user_info[5].innerText = getCookie("coin")
+        user_info[5].innerHTML = coin_split(getCookie("coin"))
     }
 
     function update_list_auto(str) {
@@ -135,7 +151,7 @@
     <td class="td bd">%s</td>
     <td class="td bd">%s</td>
 </tr>
-`.format(i, data.data[i].name, data.data[i].coin, formatSeconds(data.data[i].remain));
+`.format(i, data.data[i].name, coin_split(data.data[i].coin), formatSeconds(data.data[i].remain));
         }
 
         work_list_auto.innerHTML = html;
