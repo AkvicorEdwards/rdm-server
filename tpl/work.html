@@ -103,15 +103,21 @@
         let Silver = Copper * 100
         let Gold   = Silver * 100
 
+        let flag = ""
+        if(c < 0) {
+            flag = "-"
+            c = -c
+        }
+
         let gold = parseInt(c / Gold)
         c -= gold * Gold
         let silver = parseInt(c / Silver)
         c -= silver * Silver
         let copper = parseInt(c)
 
-        return (`<a style="color:#be9418">%sg</a>`+
+        return (`%s<a style="color:#be9418">%sg</a>`+
             `<a style="color:#6f6d6f">%ss</a>`+
-            `<a style="color:#914822">%sc</a>`).format(gold, silver, copper);
+            `<a style="color:#914822">%sc</a>`).format(flag, gold, silver, copper);
     }
 
     let input = document.getElementById('work_form');
