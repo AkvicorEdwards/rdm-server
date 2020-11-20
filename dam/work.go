@@ -156,9 +156,9 @@ func GetAllWorksNoToDo(uuid int, all bool) []Work {
 	}
 	works := make([]Work, 0)
 	if all {
-		db.Table("work").Where("uuid=? AND type=?", uuid, def.Type4).Order("wuid").Find(&works)
+		db.Table("work").Where("uuid=? AND type!=?", uuid, def.Type4).Order("wuid").Find(&works)
 	} else {
-		db.Table("work").Where("uuid=? AND type=? AND deleted=0", uuid, def.Type4).Order("wuid").Find(&works)
+		db.Table("work").Where("uuid=? AND type!=? AND deleted=0", uuid, def.Type4).Order("wuid").Find(&works)
 	}
 
 	return works
