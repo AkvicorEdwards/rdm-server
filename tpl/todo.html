@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>ToDo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        .divf {
+            width: 200px;
+            height: 100px;
+            background: transparent;
+            float: contour;
+        }
+
+        .main {
+            text-align: center; /*让div内部文字居中*/
+            background-color: #fff;
+            /*width: 75%;*/
+            /*height: 350px;*/
+            margin-left: 2%;
+            /*margin-right: 2%;*/
+            margin-top: 2%;
+            position: relative;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .td {
+            font-family: sans-serif;
+            text-align: center;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .bd {
+            border-collapse: collapse;
+            border: 1px solid black;
+            border-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<table style="margin-left: 2%;margin-top: 2%;position: relative;">
+    <tr>
+        <td>
+            <form>
+                <table id="forest_user">
+                    <tr class="bd">
+                        <td class="td bd" style="background: darkgray">UUID</td>
+                        <td class="td bd" style="background: darkgray">用户名</td>
+                        <td class="td bd" style="background: darkgray">昵称</td>
+                        <td class="td bd" style="background: darkgray">累计充值</td>
+                        <td class="td bd" style="background: darkgray">累计提现</td>
+                        <td class="td bd" style="background: darkgray">硬币数量</td>
+                    </tr>
+                    <tr class="bd" id="user_info">
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                        <td class="td bd">#</td>
+                    </tr>
+                </table>
+            </form>
+        </td>
+    </tr>
+</table>
+
+<table style="margin-left: 2%;margin-top: 2%;position: relative;">
+    <tr>
+        <td style="padding-right: 40px; padding-bottom: 20px">
+            <table>
+                <tr>
+                    <td id="work_form"></td>
+                </tr>
+            </table>
+            <br/>
+            <table>
+                <tr class="bd">
+                    <td class="td bd" style="background: azure"
+                        onclick="s_finish()">Finish
+                    </td>
+                    <td class="td bd" style="background: azure"
+                        onclick="s_new()">新增
+                    </td>
+                    <td class="td bd" style="background: azure"
+                        onclick="s_delete()">删除
+                    </td>
+                    <td class="td bd" style="background: azure"
+                        onclick="s_change()">修改
+                    </td>
+                    <td class="td bd" style="background: azure"
+                        onclick="location='/'">关闭
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr style="height: 24px"></tr>
+    <tr>
+        <td>
+            <form>
+                <table id="work_list">
+                </table>
+            </form>
+        </td>
+    </tr>
+</table>
+</body>
+<script>
+    String.prototype.format = function () {
+        let args = Array.prototype.slice.call(arguments);
+        let count = 0;
+        return this.replace(/%s/g, function () {
+            return args[count++];
+        });
+    }
+
+    let user_info = document.getElementById('user_info').cells
+
+    function update_user_info() {
+        user_info[0].innerText = getCookie("uuid")
+        user_info[1].innerText = getCookie("username")
+        user_info[2].innerText = getCookie("nickname")
+        user_info[3].innerText = getCookie("rmb_in")
+        user_info[4].innerText = getCookie("rmb_out")
+        user_info[5].innerHTML = coin_split(getCookie("coin"))
+    }
+
+    function getCookie(cookie_name) {
+        const allcookies = document.cookie;
+        let cookie_pos = allcookies.indexOf(cookie_name);
+        if (cookie_pos !== -1) {
+            cookie_pos += cookie_name.length + 1;
+            let cookie_end = allcookies.indexOf(";", cookie_pos);
+            if (cookie_end === -1) {
+                cookie_end = allcookies.length;
+            }
+            return unescape(allcookies.substring(cookie_pos, cookie_end));
+        }
+        return "";
+    }
+
+    function coin_split(c) {
+        let Copper = 1
+        let Silver = Copper * 100
+        let Gold   = Silver * 100
+
+        let flag = ""
+        if(c < 0) {
+            flag = "-"
+            c = -c
+        }
+
+        let gold = parseInt(c / Gold)
+        c -= gold * Gold
+        let silver = parseInt(c / Silver)
+        c -= silver * Silver
+        let copper = parseInt(c)
+
+        return (`%s<a style="color:#be9418">%sg</a>`+
+            `<a style="color:#6f6d6f">%ss</a>`+
+            `<a style="color:#914822">%sc</a>`).format(flag, gold, silver, copper);
+    }
+
+    let input = document.getElementById('work_form');
+    let work_list = document.getElementById('work_list');
+
+    function s_new() {
+        input.innerHTML = `
+<form method="post" id="work_forms">
+    <label>名称：
+        <input type="text" name="name" placeholder="名称">
+    </label><br /><br />
+    <label style="display: none">!!!
+        <input type="text" name="type" value="4"  style="display: none">
+    </label>
+    <label style="display: none">!!!一组包含的单位数量：
+        <input type="number" name="unit" placeholder="计量单位" value="1" style="display: none">
+    </label>
+    <label>完成一组后得到的硬币数量：
+        <input type="number" name="coin" placeholder="硬币数量">
+    </label>
+    <label style="display: none">!!!关联的自动执行任务id：
+        <input type="number" name="associate" placeholder="自动执行任务" value="0" style="display: none">
+    </label><br /><br />
+    <button type="button" onclick="post('/add_work', formValue('work_forms'), s_new_post)">提交</button>
+</form>
+`
+    }
+
+    function s_new_post(data) {
+        alert(data);
+        input.innerHTML = ""
+        get("/work_todo", update_list);
+    }
+
+    let del_set = new Set();
+
+    function getSet() {
+        let qu = "[";
+        for (let v of del_set) {
+            qu += '"' + v + '",';
+        }
+        qu = qu.substr(0, qu.length - 1);
+        qu += "]"
+        return qu;
+    }
+
+    function getSetFirst(){
+        // return del_set[0]?del_set[0]:"";
+        for (let v of del_set) {
+            return v;
+        }
+    }
+
+    function s_finish() {
+        if (del_set.size === 0) {
+            alert("请先鼠标左键单击选择需要Finish的项");
+            return
+        }
+        let qu = getSetFirst();
+        let res = confirm("Finish：" + qu);
+        if (res === false) {
+            return
+        }
+        let url = '/plant?wuid=' + qu + '&tag=todo'
+        get(url, function (str) {
+            let data = JSON.parse(str);
+            if (data.status === "0") { // 0  Error
+                alert("Error")
+            }else if (data.status === "3") { // 3  完成任务
+                alert("coin:[%s]c".format(data.coin))
+            }
+            update_user_info()
+        })
+    }
+
+    function s_delete() {
+        if (del_set.size === 0) {
+            alert("请先鼠标左键单击选择需要删除的项");
+            return
+        }
+        let qu = getSet();
+        let res = confirm("是否删除以下ID的项信息：" + qu);
+        if (res === false) {
+            return
+        }
+        post('/delete_works', "wuid=" + qu, s_new_post)
+    }
+
+
+    function s_change() {
+        if (del_set.size !== 1) {
+            alert("只能选择一个需要修改的项");
+            return
+        }
+        let qu = getSet();
+        let res = confirm("是否修改以下id的项信息：" + qu);
+        if (res === false) {
+            return
+        }
+        s_change_display_form();
+    }
+
+    function s_change_display_form() {
+        let cel = document.getElementById(del_set.values().next().value).cells
+        input.innerHTML = `
+<form method="post" id="work_forms">
+    <label>ID：
+        <input type="text" name="wuid" id="wuid" value="%s" placeholder="ID" disabled>
+    </label><br /><br />
+    <label>名称：
+        <input type="text" name="name" id="name" value="%s" placeholder="名称">
+    </label><br /><br />
+    <label style="display: none">类型：
+        <input type="text" name="type" id="type" value="%s" placeholder="类型" style="display: none">
+    </label>
+    <label style="display: none">计量单位：
+        <input type="number" name="unit" id="unit" value="%s" placeholder="计量单位" style="display: none">
+    </label>
+    <label>硬币数量：
+        <input type="number" name="coin" id="coin" value="%s" placeholder="硬币数量">
+    </label><br /><br />
+    <label>已删除：
+        <input type="number" name="deleted" id="deleted" value="%s" placeholder="已删除">
+    </label><br /><br />
+    <button type="button" onclick="post('/update_work', formValue('work_forms'), s_new_post)">提交</button>
+</form>
+`.format(cel[0].innerText, cel[1].innerText, cel[2].innerText, cel[3].innerText, cel[4].innerText
+            , cel[5].innerText);
+    }
+
+    function update_list(str) {
+        let data = [];
+        if(str.length !== 0) {
+            data = JSON.parse(str);
+        }
+
+        let html = `
+<tr class="bd">
+    <td class="td bd" style="background: darkgray">ID</td>
+    <td class="td bd" style="background: darkgray">名称</td>
+    <td class="td bd" style="background: darkgray">类型</td>
+    <td class="td bd" style="background: darkgray">计量单位</td>
+    <td class="td bd" style="background: darkgray">硬币数量</td>
+    <td class="td bd" style="background: darkgray">已删除</td>
+</tr>
+`;
+
+        for (let i = 0; i < data.length; ++i) {
+            html += `
+<tr class="bd" id="%s" onclick="del_red('%s')">
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd" style="display: none">%s</td>
+    <td class="td bd" style="display: none">%s</td>
+    <td class="td bd">%s</td>
+    <td class="td bd">%s</td>
+</tr>
+`.format(data[i].wuid, data[i].wuid, data[i].wuid, data[i].name, data[i].type,
+                data[i].unit, data[i].coin, data[i].deleted, coin_split(data[i].coin), data[i].deleted===0?"no":"yes");
+        }
+
+        work_list.innerHTML = html;
+        del_set.clear();
+    }
+
+    /**
+     * 将标签背景修改为红色并将id加入set
+     * 还原被修改为红色的标签，将id从set中删除
+     * @param id 标签id
+     */
+    function del_red(id) {
+        if (del_set.has(id)) {
+            document.getElementById(id).style.background = '';
+            del_set.delete(id);
+        } else {
+            document.getElementById(id).style.background = 'red';
+            del_set.add(id);
+        }
+    }
+
+</script>
+
+<script>
+    /**
+     * 发送POST请求
+     * @param url 请求URL
+     * @param formvalue 需要发送的数据
+     * @param func 返回信息处理函数
+     */
+    function post(url, formvalue, func) {
+        let httpRequest = new XMLHttpRequest();
+        httpRequest.open('POST', url, true);
+        httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        httpRequest.send(formvalue);
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                func(httpRequest.responseText);
+            }
+        };
+    }
+
+    /**
+     * 发送GET请求
+     * @param url 请求URL
+     * @param func 返回信息处理函数
+     */
+    function get(url, func) {
+        let httpRequest = new XMLHttpRequest();
+        httpRequest.open('GET', url, true);
+        httpRequest.send();
+        httpRequest.onreadystatechange = function () {
+            if (httpRequest.readyState === 4 && httpRequest.status === 200) {
+                func(httpRequest.responseText);
+            }
+        };
+    }
+
+    /**
+     * 获取表单的值，拼接成字符串返回
+     * @param formId 表单ID
+     * @returns {string} 拼接成字符串的值
+     */
+    function formValue(formId) {
+        const formObj = document.getElementById(formId);
+        let name, value, postString = "";
+        if (formObj.elements.length) {
+            for (let i = 0; i < formObj.length; i++) {
+                let singleObj = formObj[i];
+                if (singleObj.type !== "reset" && singleObj.type !== "submit"
+                    && singleObj.type !== "button") {
+                    if (singleObj.type === "radio" || singleObj.type === "checkbox") {
+                        if (singleObj.checked) {
+                            name = singleObj.name;
+                            value = singleObj.value;
+                            postString = postString + name + "=" + value + "&";
+                        }
+                    } else {
+                        name = singleObj.name;
+                        value = singleObj.value;
+                        postString = postString + name + "=" + value + "&";
+                    }
+                }
+            }
+        }
+        return postString.substr(0, postString.length - 1);
+    }
+</script>
+
+<script>
+    update_user_info()
+    get("/work_todo", update_list);
+</script>
+</html>

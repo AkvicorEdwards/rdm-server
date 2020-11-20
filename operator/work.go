@@ -74,6 +74,22 @@ func GetAllWorkJson(uuid int) string {
 	}
 	return string(data)
 }
+func GetAllWorkJsonNoDeleted(uuid int) string {
+	work := dam.GetAllWorks(uuid, false)
+	data, err := json.Marshal(work)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+func GetAllWorkJsonNoDeletedNoToDo(uuid int) string {
+	work := dam.GetAllWorksNoToDo(uuid, false)
+	data, err := json.Marshal(work)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
 
 // 获取json格式的计时类型的Work
 func GetTimeWorkJson(uuid int) string {
@@ -108,6 +124,24 @@ func GetCustomWorkJson(uuid int) string {
 // 获取json格式的自动类型的Work
 func GetAutoWorkJson(uuid int) string {
 	work := dam.GetAutoWorks(uuid, true)
+	data, err := json.Marshal(work)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
+func GetAllToDoWorkJson(uuid int) string {
+	work := dam.GetToDoWorks(uuid, true)
+	data, err := json.Marshal(work)
+	if err != nil {
+		return ""
+	}
+	return string(data)
+}
+
+func GetToDoWorkJson(uuid int) string {
+	work := dam.GetToDoWorks(uuid, false)
 	data, err := json.Marshal(work)
 	if err != nil {
 		return ""

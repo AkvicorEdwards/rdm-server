@@ -161,7 +161,7 @@ func getWorkList(w http.ResponseWriter, r *http.Request) {
 				uuid = t
 			}
 		}
-		Fprint(w, operator.GetAllWorkJson(uuid))
+		Fprint(w, operator.GetAllWorkJsonNoDeletedNoToDo(uuid))
 	}
 }
 
@@ -206,6 +206,17 @@ func getWorkAuto(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.Method == "GET" {
 		Fprint(w, operator.GetAutoWorkJson(session.GetUUID(r)))
+	}
+}
+
+func getWorkToDo(w http.ResponseWriter, r *http.Request) {
+	UpdateCookieSession(w, r)
+	if !CheckUserPermission(r, def.P24) {
+		Fprint(w, "没有获取任务信息的权限")
+		return
+	}
+	if r.Method == "GET" {
+		Fprint(w, operator.GetToDoWorkJson(session.GetUUID(r)))
 	}
 }
 

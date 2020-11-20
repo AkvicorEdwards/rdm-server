@@ -21,6 +21,7 @@ func ParsePrefix() {
 	public["/"] = index
 	public["/login"] = login
 	public["/register"] = register
+	public["/todo"] = todo
 	public["/forest"] = forest
 	public["/topup"] = topUp
 	public["/work"] = work
@@ -47,6 +48,7 @@ func ParsePrefix() {
 	public["/work_once"] = getWorkOnce
 	public["/work_custom"] = getWorkCustom
 	public["/work_auto"] = getWorkAuto
+	public["/work_todo"] = getWorkToDo
 	public["/get_user_auto"] = getUserWorkAuto
 	public["/auto_remain"] = autoRemain
 

@@ -14,6 +14,7 @@ var Work *template.Template
 var User *template.Template
 var Record *template.Template
 var Transaction *template.Template
+var ToDo *template.Template
 var Forest *template.Template
 var Login *template.Template
 var Register *template.Template
@@ -31,6 +32,7 @@ func Parse() {
 	User = addFromFile("./tpl/user.html")
 	Record = addFromFile("./tpl/record.html")
 	Transaction = addFromFile("./tpl/transaction.html")
+	ToDo = addFromFile("./tpl/todo.html")
 	Forest = addFromFile("./tpl/forest.html")
 	Login = addFromFile("./tpl/login.html")
 	Register = addFromFile("./tpl/register.html")

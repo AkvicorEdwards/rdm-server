@@ -9,4 +9,6 @@ const (
 	Type2 = 2
 	// 此项的计算以分钟为单位
 	Type3 = 3
+
+	Type4 = 4
 )

@@ -49,6 +49,8 @@ const (
 	P22
 	// 查看所有人的分析
 	P23
+	// 使用ToDo
+	P24
 )
 
 func CombinePermission(p ...int64) int64 {

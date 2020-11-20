@@ -150,6 +150,20 @@ func GetAllWorks(uuid int, all bool) []Work {
 	return works
 }
 
+func GetAllWorksNoToDo(uuid int, all bool) []Work {
+	if !Connected {
+		Connect()
+	}
+	works := make([]Work, 0)
+	if all {
+		db.Table("work").Where("uuid=? AND type=?", uuid, def.Type4).Order("wuid").Find(&works)
+	} else {
+		db.Table("work").Where("uuid=? AND type=? AND deleted=0", uuid, def.Type4).Order("wuid").Find(&works)
+	}
+
+	return works
+}
+
 // 获取 work 表中 按时间 计算收益的记录
 func GetTimeWorks(uuid int, all bool) []Work {
 	if !Connected {
@@ -203,6 +217,19 @@ func GetAutoWorks(uuid int, all bool) []Work {
 		db.Table("work").Where("type=? AND uuid=?", def.Type0, uuid).Order("wuid").Find(&works)
 	} else {
 		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type0, uuid).Order("wuid").Find(&works)
+	}
+	return works
+}
+
+func GetToDoWorks(uuid int, all bool) []Work {
+	if !Connected {
+		Connect()
+	}
+	works := make([]Work, 0)
+	if all {
+		db.Table("work").Where("type=? AND uuid=?", def.Type4, uuid).Order("wuid").Find(&works)
+	} else {
+		db.Table("work").Where("type=? AND uuid=? AND deleted=0", def.Type4, uuid).Order("wuid").Find(&works)
 	}
 	return works
 }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"rdm/def"
@@ -54,6 +55,16 @@ func plant(w http.ResponseWriter, r *http.Request) {
 			}
 			UpdateCookieSession(w, r)
 			Fprintf(w, `{"rmb_in":"%d","rmb_out":"%d","coin":"%d","status":"4"}`, rmbIn, rmbOut, coin)
+			return
+		case def.Type4:
+			coin, ok := operator.FinishOnce(uuid, wuid, time.Now().Unix(), tag)
+			if !ok {
+				Fprint(w, `{"status":"0"}`)
+				return
+			}
+			operator.DeleteWorks([]string{fmt.Sprint(wuid)})
+			UpdateCookieSession(w, r)
+			Fprintf(w, `{"coin":"%d","status":"3"}`, coin)
 			return
 		case def.Type2: // 以次数为单位
 			coin, ok := operator.FinishOnce(uuid, wuid, time.Now().Unix(), tag)
