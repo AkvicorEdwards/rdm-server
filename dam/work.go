@@ -1,6 +1,7 @@
 package dam
 
 import (
+	"github.com/jinzhu/gorm"
 	"log"
 	"rdm/def"
 	"time"
@@ -66,7 +67,11 @@ func DeleteWorks(wuids []int) bool {
 	lockWork.Lock()
 	defer lockWork.Unlock()
 
-	res := db.Table("work").Where("wuid IN (?) AND deleted=0", wuids).Update("deleted", time.Now().Unix())
+	res := db.Table("work").Where("wuid IN (?)", wuids).UpdateColumns(map[string]interface{}{
+		"name":  gorm.Expr("'old_'||name"),
+	})
+
+	res = db.Table("work").Where("wuid IN (?) AND deleted=0", wuids).Update("deleted", time.Now().Unix())
 	if res.Error != nil {
 		log.Println(res.Error)
 		return false
