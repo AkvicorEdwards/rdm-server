@@ -47,7 +47,11 @@ func DeleteWork(key interface{}, uuid int) bool {
 		return false
 	}
 
-	res := db.Table("work").Where(query, key, uuid).Update("deleted", time.Now().Unix())
+	res := db.Table("work").Where(query, key, uuid).UpdateColumns(map[string]interface{}{
+		"name":  gorm.Expr("?||'_'||name", time.Now().Unix()),
+	})
+
+	res = db.Table("work").Where(query, key, uuid).Update("deleted", time.Now().Unix())
 	if res.Error != nil {
 		log.Println(res.Error)
 		return false
@@ -68,7 +72,7 @@ func DeleteWorks(wuids []int) bool {
 	defer lockWork.Unlock()
 
 	res := db.Table("work").Where("wuid IN (?)", wuids).UpdateColumns(map[string]interface{}{
-		"name":  gorm.Expr("'old_'||name"),
+		"name":  gorm.Expr("?||'_'||name", time.Now().Unix()),
 	})
 
 	res = db.Table("work").Where("wuid IN (?) AND deleted=0", wuids).Update("deleted", time.Now().Unix())
