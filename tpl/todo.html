@@ -287,13 +287,16 @@
     <label>硬币数量：
         <input type="number" name="coin" id="coin" value="%s" placeholder="硬币数量">
     </label><br /><br />
+    <label style="display: none">关联的自动执行任务id：
+        <input type="number" name="associate" id="associate" value="%s" placeholder="自动执行任务" style="display: none">
+    </label>
     <label>已删除：
         <input type="number" name="deleted" id="deleted" value="%s" placeholder="已删除">
     </label><br /><br />
     <button type="button" onclick="post('/update_work', formValue('work_forms'), s_new_post)">提交</button>
 </form>
 `.format(cel[0].innerText, cel[1].innerText, cel[2].innerText, cel[3].innerText, cel[4].innerText
-            , cel[5].innerText);
+            , cel[5].innerText, cel[6].innerText);
     }
 
     function update_list(str) {
@@ -306,10 +309,7 @@
 <tr class="bd">
     <td class="td bd" style="background: darkgray">ID</td>
     <td class="td bd" style="background: darkgray">名称</td>
-    <td class="td bd" style="background: darkgray">类型</td>
-    <td class="td bd" style="background: darkgray">计量单位</td>
     <td class="td bd" style="background: darkgray">硬币数量</td>
-    <td class="td bd" style="background: darkgray">已删除</td>
 </tr>
 `;
 
@@ -318,15 +318,15 @@
 <tr class="bd" id="%s" onclick="del_red('%s')">
     <td class="td bd">%s</td>
     <td class="td bd">%s</td>
-    <td class="td bd">%s</td>
-    <td class="td bd">%s</td>
     <td class="td bd" style="display: none">%s</td>
     <td class="td bd" style="display: none">%s</td>
-    <td class="td bd">%s</td>
+    <td class="td bd" style="display: none">%s</td>
+    <td class="td bd" style="display: none">%s</td>
+    <td class="td bd" style="display: none">%s</td>
     <td class="td bd">%s</td>
 </tr>
-`.format(data[i].wuid, data[i].wuid, data[i].wuid, data[i].name, data[i].type,
-                data[i].unit, data[i].coin, data[i].deleted, coin_split(data[i].coin), data[i].deleted===0?"no":"yes");
+`.format(data[i].wuid, data[i].wuid, data[i].wuid, data[i].name,  data[i].type, data[i].unit, data[i].coin,
+                data[i].associate, data[i].deleted, coin_split(data[i].coin));
         }
 
         work_list.innerHTML = html;
